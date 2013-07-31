@@ -605,22 +605,18 @@ class conManager:
 
 
     if cmd == "wladd":
-      #params: user, status (on/off), time
       #self.recvAddUser(bites[1], bites[2], bites[3])
       pass
 
     if cmd == "wldelete":
-      #params: time
       #self.recvDeletUser(bites[1])
       pass
 
     if cmd == "wlonline":
-      #params: user, time
       #self.recvOnlineUser(bites[1], bites[2])
       pass
 
     if cmd == "wloffline":
-      #params: user, time
       #self.recvOfflineUser(bites[1], bites[2])
       pass
 

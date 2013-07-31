@@ -195,7 +195,6 @@ class Group:
     self.owner = None
     self.blist = list()
     self.bw = list()
-    self.pl = list()
     self.users = list()
     self.ping = False
     self.pArray = list()

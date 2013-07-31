@@ -246,7 +246,8 @@ class Group:
 
   def setNameColor(self, nColor): self.nColor = nColor
   def setFontColor(self, fColor): self.fColor = fColor
-  def setFontSize(self, fSize): self.fSize = fSize
+  def setFontSize(self, fSize):
+    if int(fSize) < 23: self.fSize = fSize
   def setFontFace(self, fFace): self.fFace = fFace
 
   def getAuth(self, user):

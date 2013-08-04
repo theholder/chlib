@@ -265,6 +265,8 @@ class Group:
     if banned: return banned[0]
     else: return None
 
+  def dlPost(self, post): self.sendCmd("delmsg", post.pid)
+
   def dlUser(self, user):
     unid = self.getPost("user", user).unid
     self.sendCmd("delallmsg", unid, "")

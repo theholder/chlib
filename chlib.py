@@ -210,8 +210,8 @@ class Group:
 
   def connect(self):
     self.chSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    self.chSocket.setblocking(True)
     self.chSocket.connect(("s"+self.snum+".chatango.com", 443))
+    self.chSocket.setblocking(False)
     self.writebuf += bytes("bauth:"+self.name+":"+self.uid+":"+self.user+":"+self.password+"\x00", "utf-8")
 
 
@@ -264,6 +264,8 @@ class Group:
     banned = [x for x in self.blist if x.user == user]
     if banned: return banned[0]
     else: return None
+
+  def dlPost(self, post): self.sendCmd("delmsg", post.pid)
 
   def dlUser(self, user):
     unid = self.getPost("user", user).unid
@@ -337,8 +339,8 @@ class conManager:
 
   def pmConnect(self):
     self.chSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    self.chSocket.setblocking(True)
     self.chSocket.connect(("c1.chatango.com", 5222))
+    self.chSocket.setblocking(False)
     self.pmAuth = Generate.auth(self)
     self.pmWritebuf += (("tlogin:"+self.pmAuth+":2:"+self.uid+"\x00").encode())
 

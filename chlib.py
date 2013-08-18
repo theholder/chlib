@@ -246,16 +246,9 @@ class Group:
   def setFontFace(self, fFace): self.fFace = fFace
 
   def getAuth(self, user):
-    mods = list()
-    owners = list()
-    sql = mysql.connector.connect(user="root", password="dragonz", host="localhost", database="ranks")
-    db = sql.cursor()
-    db.execute("select mods from wpe where mods != \"None\";")
-    [mods.append(x[0]) for x in db.fetchall()]
-    db.execute("select owners from wpe where owners != \"None\";")
-    [owners.append(x[0]) for x in db.fetchall()]
-    if user in mods: return "mod";
-    if user in owners: return "owner";
+    if user == self.owner: return "2"
+    if user in self.mods: return "1"
+    else: return "0"
 
   def getPost(self, var, pData):
     try: post = [x for x in self.pArray if getattr(x, var) == pData][0]

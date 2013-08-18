@@ -18,7 +18,6 @@ import re
 import urllib.request
 import random
 import threading
-import mysql.connector
 
 
 ################################

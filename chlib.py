@@ -454,10 +454,8 @@ class conManager:
         post = group.pHint
         group.pArray.append(post)
         if post.post: #not blank post
-          if post.post[0] == self.cmdPrefix:
-            self.recvCommand(post.user, group, group.getAuth(post.user), post, post.post.split()[0][1:].lower(), " ".join(post.post.split()[1:]))
-            self.recvPost(post.user, group, group.getAuth(post.user), post) #wont fragment per-post code to gather data
-          else: self.recvPost(post.user, group, group.getAuth(post.user), post)
+          if post.post[0] == self.cmdPrefix: self.recvCommand(post.user, group, group.getAuth(post.user), post, post.post.split()[0][1:].lower(), " ".join(post.post.split()[1:]))
+          self.recvPost(post.user, group, group.getAuth(post.user), post)
 
     if cmd == "n": group.unum = bites[1]
 

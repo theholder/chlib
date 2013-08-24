@@ -77,11 +77,11 @@ def getServer(group):
 class Generate:
 
   def aid(self, n, uid):
-    n = n.split(".")[0]
+    n = str(int(n))[-4:]
     try:
       if (int(n) == 0) or (len(n) < 4): n = "3452"
     except ValueError: n = "3452"
-    uid = uid[4:][:4]
+    uid = str(uid)[4:][:4]
     v1 = 0
     v5 = ""
     while v1 < len(n):

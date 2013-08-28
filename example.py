@@ -12,6 +12,10 @@ class Bot(chlib.conManager):
       print("Connected to "+group.name)
 
 
+    def recvPMInit(self, group):
+      print("Connected to "+group.name)
+
+
     def recvRemove(self, group):
       print("Disconnected from "+group.name)
 

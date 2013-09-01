@@ -42,7 +42,7 @@ def getServer(group):
     group = 'q'.join(group.split('-'))
     tmp10 = min(5, len(group))
     tmp12 = int(group[:tmp10], 36)
-    if len(group) >= 6:
+    if len(group) > 6:
       tmp11 = group[6:][:min(3, len(group) - 5)]
       tmp8 = int(tmp11, 36)
     else: tmp8 = 1000

@@ -217,6 +217,11 @@ class Group:
   def sendCmd(self, *args):
     self.writebuf += bytes(':'.join(args)+"\r\n\x00", "utf-8")
 
+  def getLastPost(self, user):
+    try: post = [x for x in self.pArray if x.user == user][-1]
+    except IndexError: post = None
+    return post
+
   def sendPost(self, post, html = True):
     if not html: post = post.replace("<", "&lt;").replace(">", "&gt;")
     if len(post) < 2700: self.sendCmd("bmsg", "t12r", "<n"+self.nColor+"/><f x"+self.fSize+self.fColor+"=\""+self.fFace+"\">"+post)

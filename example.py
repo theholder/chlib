@@ -8,6 +8,9 @@ class Bot(chlib.conManager):
       for group in groups: self.addGroup(group)
       self.cmdPrefix = "!" #optional, just won't call any commands.
 
+    def recvFail(self, group):
+      print("Failed to connect to "+group.name)
+
     def recvInit(self, group):
       print("Connected to "+group.name)
 

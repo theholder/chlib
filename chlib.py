@@ -400,6 +400,7 @@ class conManager:
 
   def sendPM(self, user, pm): self.sendCmd("msg", user, "<n"+self.nColor+"/><m v=\"1\"><g xs0=\"0\"><g x"+self.fSize+"s"+self.fColor+"=\""+self.fFace+"\">"+pm+"</g></g></m>")
 
+
   def manage(self, group, cmd, bites):
 
     if cmd == "denied":
@@ -486,13 +487,13 @@ class conManager:
         deleted = group.getPost("pid", pid)
         if deleted:
           group.pArray.remove(deleted)
-          self.recvPostDelete(group, deleted)
+          #self.recvPostDelete(group, deleted)
 
     if cmd == "delete":
       deleted = group.getPost("pid", bites[1])
       if deleted:
         group.pArray.remove(deleted)
-        self.recvPostDelete(group, deleted)
+        #self.recvPostDelete(group, deleted)
 
     if cmd == "blocked":
       if bites[3]: self.recvBan(group, bites[3], bites[4])
@@ -504,11 +505,15 @@ class conManager:
       else:
         if bites[3]:
           group.getBanList()
-          self.recvUnban(group, bites[3], bites[4])
-        else: self.recvUnban(group, "Non-member", bites[4])
+          #self.recvUnban(group, bites[3], bites[4])
+        else:
+          pass
+          #self.recvUnban(group, "Non-member", bites[4])
 
     if cmd == "logoutok": group.user  = "!anon" + Generate.aid(self, self.nColor, group.uid)
-    if cmd == "pwdok": self.recvLogin(group)
+    if cmd == "pwdok":
+      pass
+      #self.recvLogin(group)
 
     if cmd == "clearall":
       if bites[1] == "ok": group.pArray = list()
@@ -518,7 +523,9 @@ class conManager:
       group.mhist = True
       #self.recvHistLoad(group)
 
-    if cmd == "show_fw": self.recvFlWarning(group)
+    if cmd == "show_fw":
+      pass
+      #self.recvFlWarning(group)
 
     if cmd == "show_tb":
       #self.recvGroupBan(group)
@@ -537,7 +544,9 @@ class conManager:
       self.fl.sort()
 
     if cmd == "msg": self.recvPM(bites[1], self.cleanPM(":".join(bites[6:])))
-    if cmd == "msgoff": self.recvOfflinePM(bites[1], self.cleanPM(":".join(bites[6:])))
+    if cmd == "msgoff":
+      #self.recvOfflinePM(bites[1], self.cleanPM(":".join(bites[6:])))
+      pass
     if cmd == "kickingoff": self.recvPMKick()
 
 

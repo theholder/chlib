@@ -561,8 +561,7 @@ class conManager:
       for wSocket in wSockets:
         group = [x for x in self.cArray if x.chSocket == wSocket][0]
         if not group.ping:
-          t = threading.Timer(90, self.pingTimer, (group,))
-          t.start()
+          threading.Timer(90, self.pingTimer, (group,)).start()
           group.ping = True
         if wSocket.getpeername()[1] == 5222:
           if self.pmWritebuf:

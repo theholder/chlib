@@ -4,7 +4,7 @@
 #Description: My take on a flexable chatango library.
 #Contact: charizard.chatango.com
 #Release date: 7/31/2013
-#Version: 1.0
+#Version: 1.1
 ################################
 
 ################################
@@ -225,7 +225,6 @@ class Group:
   def sendPost(self, post, html = True):
     if not html: post = post.replace("<", "&lt;").replace(">", "&gt;")
     if len(post) < 2700: self.sendCmd("bmsg", "t12r", "<n"+self.nColor+"/><f x"+self.fSize+self.fColor+"=\""+self.fFace+"\">"+post)
-    else: print("Error - Post is too big.")
 
   def login(self, user, password = None):
     if user and password:
@@ -355,9 +354,9 @@ class conManager:
 
 
   def addGroup(self, group):
-    group = Group(group, self.user, self.password, self.uid)
-    group.connect()
     if not self.getGroup(group):
+      group = Group(group, self.user, self.password, self.uid)
+      group.connect()
       self.cArray.append(group)
       self.groups.append(group.name)
     self.connected = True
@@ -403,6 +402,13 @@ class conManager:
 
   def manage(self, group, cmd, bites):
 
+    if cmd == "denied":
+      self.getGroup(group.name).chSocket.close()
+      self.cArray.remove(self.getGroup(group.name))
+      if not self.cArray:
+        self.connected = False
+      self.recvFail(group)
+      
     if cmd == "ok":
       if bites[3] != 'M': self.removeGroup(group.name)
       else:

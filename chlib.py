@@ -193,7 +193,6 @@ class Group:
     self.users = list()
     self.ping = False
     self.pArray = list()
-    self.pHint = None
     self.post = None
     self.unum = None
     self.mhist = None
@@ -458,16 +457,14 @@ class conManager:
         #self.recvUserJoin(group, user)
 
     if cmd == 'i': group.pArray.append(Post(group, bites[1], bites[2], bites[3], bites[4], bites[5], bites[6], bites[7], ":".join(bites[10:])))
-    if cmd == 'b': group.pHint = Post(group, bites[1], bites[2], bites[3], bites[4], bites[5], bites[6], bites[7], ":".join(bites[10:]))
+    if cmd == 'b': group.pArray.insert(int((len(group.pArray)-1)+int(bites[6])), Post(group, bites[1], bites[2], bites[3], bites[4], bites[5], bites[6], bites[7], ":".join(bites[10:])))
 
     if cmd == 'u' and bites[2] != "psbulg==":
-      if bites[1] == group.pHint.pnum:
-        group.pHint.addId(bites[2])
-        post = group.pHint
-        group.pArray.append(post)
-        if post.post: #not blank post
-          if post.post[0] == self.cmdPrefix: self.recvCommand(post.user, group, group.getAuth(post.user), post, post.post.split()[0][1:].lower(), " ".join(post.post.split()[1:]))
-          self.recvPost(post.user, group, group.getAuth(post.user), post)
+      post = group.pArray[(len(group.pArray)-(int(bites[1])+1))+int(bites[1])]
+      post.addId(bites[2])
+      if post.post: #not blank post
+        if post.post[0] == self.cmdPrefix: self.recvCommand(post.user, group, group.getAuth(post.user), post, post.post.split()[0][1:].lower(), " ".join(post.post.split()[1:]))
+        self.recvPost(post.user, group, group.getAuth(post.user), post)
 
     if cmd == "n": group.unum = bites[1]
 

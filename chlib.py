@@ -280,6 +280,7 @@ class Group:
     if unid and ip:
       if (user.startswith("#")) or (user.startswith("!")): self.sendCmd("block", unid, ip, "")
       else: self.sendCmd("block", unid, ip, user)
+    self.getBanList()
 
   def flUser(self, user):
     pid = self.getPost("user", user).pid

@@ -271,8 +271,12 @@ class Group:
     if unid: self.sendCmd("delallmsg", unid, "")
 
   def bUser(self, user):
-    unid = self.getPost("user", user).unid
-    ip = self.getPost("user", user).ip
+    unid = None
+    ip = None
+    try:
+      unid = self.getPost("user", user).unid
+      ip = self.getPost("user", user).ip
+    except: pass
     if unid and ip:
       if (user.startswith("#")) or (user.startswith("!")): self.sendCmd("block", unid, ip, "")
       else: self.sendCmd("block", unid, ip, user)

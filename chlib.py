@@ -436,7 +436,7 @@ class conManager:
       pl = ":".join(bites[1:]).split(";")
       for p in pl:
         p = p.split(":")[:-1]
-        if p[-2] != "None" and p[-1] == "None": group.users.append(p[-2])
+        if p[-2] != "None" and p[-1] == "None": group.users.append(p[-2].lower())
       group.users.sort()
 
     if cmd == "blocklist":
@@ -456,7 +456,7 @@ class conManager:
         group.users.remove(bites[4])
         #self.recvUserLeave(group, user)
       if bites[1] == '1' and bites[-4] != "None":
-        group.users.append(bites[4])
+        group.users.append(bites[4].lower())
         group.users.sort()
         #self.recvUserJoin(group, user)
 

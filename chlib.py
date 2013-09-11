@@ -455,7 +455,7 @@ class conManager:
     if cmd == 'participant':
       user = None
       if bites[1] == '0' and bites[4] != "None" and bites[4] in group.users:
-        group.users.remove(bites[4])
+        group.users.remove(bites[4].lower())
         #self.recvUserLeave(group, user)
       if bites[1] == '1' and bites[-4] != "None":
         group.users.append(bites[4].lower())

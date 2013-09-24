@@ -213,8 +213,7 @@ class Group:
     self.blist = list()
     self.sendCmd("blocklist", "block", "", "next", "500")
 
-  def sendCmd(self, *args):
-    self.writebuf += bytes(':'.join(args)+"\r\n\x00", "utf-8")
+  def sendCmd(self, *args): self.writebuf += bytes(':'.join(args)+"\r\n\x00", "utf-8")
 
   def getLastPost(self, user):
     try: post = [x for x in self.pArray if x.user == user][-1]
@@ -297,15 +296,12 @@ class Group:
   def eraseMod(self, mod): self.sendCmd("removemod", mod)
 
   def clearGroup(self):
-    if self.user == self.owner:
-      self.sendCmd("clearall")
+    if self.user == self.owner: self.sendCmd("clearall")
     else: #;D
       if self.mhist:
-        for history in self.pArray:
-          self.sendCmd("delmsg", history.pid)
+        for history in self.pArray: self.sendCmd("delmsg", history.pid)
 
-  def loadHist(self):
-    self.sendCmd("get_more", "35")
+  def loadHist(self): self.sendCmd("get_more", "35")
 
   
 ################################
@@ -454,10 +450,10 @@ class conManager:
 
     if cmd == 'participant':
       user = None
-      if bites[1] == '0' and bites[4] != "None" and bites[4] in group.users:
+      if (bites[1] == '0') and (bites[4] != "None"):
         group.users.remove(bites[4].lower())
         #self.recvUserLeave(group, user)
-      if bites[1] == '1' and bites[-4] != "None":
+      if (bites[1] == '1') and (bites[-4] != "None"):
         group.users.append(bites[4].lower())
         group.users.sort()
         #self.recvUserJoin(group, user)
@@ -575,19 +571,20 @@ class conManager:
       self.pmConnected = True
     while self.connected or self.pmConnected:
       gSocks = [x.chSocket for x in self.cArray]
-      rSockets, wSockets, error = select.select(gSocks, gSocks, [], 0.2)
+      rSockets, wSockets, eSocks = select.select(gSocks, gSocks, gSocks)
       for wSocket in wSockets:
         group = [x for x in self.cArray if x.chSocket == wSocket][0]
         if not group.ping:
           threading.Timer(90, self.pingTimer, (group,)).start()
           group.ping = True
-        if wSocket.getpeername()[1] == 5222:
+        if wSocket.getpeername()[1] != 5222:
+          if group.writebuf:
+            group.chSocket.send(group.writebuf)
+            group.writebuf = b""
+        else:
           if self.pmWritebuf:
             wSocket.send(self.pmWritebuf)
             self.pmWritebuf = b""
-        elif group.writebuf:
-          group.chSocket.send(group.writebuf)
-          group.writebuf = b""
       for rSocket in rSockets:
         group = [x for x in self.cArray if x.chSocket == rSocket][0]
         while not self.recvbuf.endswith(b"\x00"):
@@ -595,5 +592,5 @@ class conManager:
         if len(self.recvbuf) > 0:
           self.decode(group, self.recvbuf)
           self.recvbuf = b""
-      time.sleep(0.1)
+      time.sleep(0.1) #prevents all the cpu usage.
     [x.chSocket.close() for x in self.cArray]

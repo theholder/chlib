@@ -4,7 +4,7 @@
 #Description: My take on a flexable chatango library.
 #Contact: charizard.chatango.com
 #Release date: 7/31/2013
-#Version: 1.1
+#Version: 1.2
 ################################
 
 ################################
@@ -175,15 +175,16 @@ class Post:
 
 class Group:
 
-  def __init__(self, group, user, password, uid):
-    
+  def __init__(self, manager, group, user, password, uid):
+
+    self.manager = manager
     self.name = group
     self.user = user.lower()
     self.password = password
     self.time = None
     self.chSocket = None
+    self.wbuf = b""
     self.snum = getServer(group)
-    self.writebuf = b""
     self.loginFail = False
     self.uid = uid
     self.mods = list()
@@ -200,20 +201,23 @@ class Group:
     self.fFace = "0"
     self.fColor = "FFF"
     self.nColor = "CCC"
+    self.connect()
 
+  def fileno(self): return self.chSocket.fileno()
 
   def connect(self):
     self.chSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     self.chSocket.setblocking(True)
     self.chSocket.connect(("s"+self.snum+".chatango.com", 443))
-    self.writebuf += bytes("bauth:"+self.name+":"+self.uid+":"+self.user+":"+self.password+"\x00", "utf-8")
+    threading.Timer(90, self.manager.pingTimer, (self,)).start()
+    self.wbuf += bytes("bauth:"+self.name+":"+self.uid+":"+self.user+":"+self.password+"\x00", "utf-8")
 
 
   def getBanList(self):
     self.blist = list()
     self.sendCmd("blocklist", "block", "", "next", "500")
 
-  def sendCmd(self, *args): self.writebuf += bytes(':'.join(args)+"\r\n\x00", "utf-8")
+  def sendCmd(self, *args): self.wbuf += bytes(':'.join(args)+"\r\n\x00", "latin-1")
 
   def getLastPost(self, user):
     try: post = [x for x in self.pArray if x.user == user][-1]
@@ -324,26 +328,27 @@ class conManager:
     self.fl = list()
     self.bl = list()
     self.chSocket = None
+    self.wbuf = b""
     self.pmAuth = None
     self.ping = None
     self.ip = None
-    self.fSize = "13"
+    self.fSize = "11"
     self.fFace = "0"
-    self.fColor = "ffffff"
-    self.nColor = "CCC"
-    self.recvbuf = b""
-    self.pmWritebuf = b""
+    self.fColor = "000"
+    self.nColor = "000"
     self.uid = str(int(random.randrange(1000000000000000, 10000000000000000)))
     self.cmdPrefix = None
     if self.pm: self.pmConnect()
-    
+
+  def fileno(self): return self.chSocket.fileno()
 
   def pmConnect(self):
     self.chSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     self.chSocket.setblocking(True)
     self.chSocket.connect(("c1.chatango.com", 5222))
     self.pmAuth = Generate.auth(self)
-    self.pmWritebuf += (("tlogin:"+self.pmAuth+":2:"+self.uid+"\x00").encode())
+    threading.Timer(90, self.pingTimer, (self,)).start()
+    self.wbuf += bytes("tlogin:"+self.pmAuth+":2:"+self.uid+"\x00", "utf-8")
 
 
   def pmDisconnect(self):
@@ -351,13 +356,12 @@ class conManager:
     self.cArray.remove(self)
 
 
-  def sendCmd(self, *args): self.pmWritebuf += bytes(':'.join(args)+"\r\n\x00", "utf-8")
+  def sendCmd(self, *args): self.wbuf += bytes(':'.join(args)+"\r\n\x00", "latin-1")
 
 
   def addGroup(self, group):
-    if not self.getGroup(group):
-      group = Group(group, self.user, self.password, self.uid)
-      group.connect()
+    if not self.getGroup(group) in self.cArray:
+      group = Group(self, group, self.user, self.password, self.uid)
       self.cArray.append(group)
       self.groups.append(group.name)
     self.connected = True
@@ -557,40 +561,23 @@ class conManager:
         cmd = bites[0]
         self.manage(group, cmd, bites)
 
-
   def pingTimer(self, group):
+    group.ping = True
     while group.ping:
       group.sendCmd("\r\n\x00")
       time.sleep(90)
-
+    group.ping = False
 
   def main(self):
     self.run()
-    if self.chSocket:
-      self.cArray.append(self)
-      self.pmConnected = True
     while self.connected or self.pmConnected:
-      gSocks = [x.chSocket for x in self.cArray]
-      rSockets, wSockets, eSocks = select.select(gSocks, gSocks, gSocks)
-      for wSocket in wSockets:
-        group = [x for x in self.cArray if x.chSocket == wSocket][0]
-        if not group.ping:
-          threading.Timer(90, self.pingTimer, (group,)).start()
-          group.ping = True
-        if wSocket.getpeername()[1] != 5222:
-          if group.writebuf:
-            group.chSocket.send(group.writebuf)
-            group.writebuf = b""
-        else:
-          if self.pmWritebuf:
-            wSocket.send(self.pmWritebuf)
-            self.pmWritebuf = b""
-      for rSocket in rSockets:
-        group = [x for x in self.cArray if x.chSocket == rSocket][0]
-        while not self.recvbuf.endswith(b"\x00"):
-          self.recvbuf += group.chSocket.recv(1024) #need the WHOLE buffer ;D
-        if len(self.recvbuf) > 0:
-          self.decode(group, self.recvbuf)
-          self.recvbuf = b""
-      time.sleep(0.1) #prevents all the cpu usage.
+      rSocks, wSocks, eSocks = select.select(self.cArray, self.cArray, self.cArray)
+      for wSock in wSocks:
+        if wSock.wbuf: wSock.chSocket.send(wSock.wbuf)
+        wSock.wbuf = b""
+      for rSock in rSocks:
+        rbuf = b""
+        while not rbuf.endswith(b'\x00'): rbuf += rSock.chSocket.recv(1024) #need the WHOLE buffer ;D
+        if len(rbuf) > 0: self.decode(rSock, rbuf)
+      time.sleep(0.1)
     [x.chSocket.close() for x in self.cArray]

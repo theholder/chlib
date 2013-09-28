@@ -1,11 +1,13 @@
 import chlib
 
-
 class Bot(chlib.conManager):
 
     def run(self):
       groups = ["example", "example2"] #list your group names instead
       for group in groups: self.addGroup(group)
+      if self.pm:
+        self.cArray.append(self)
+        self.pmConnected = True
       self.cmdPrefix = "!" #optional, just won't call any commands.
 
     def recvFail(self, group):
@@ -28,7 +30,6 @@ class Bot(chlib.conManager):
       if cmd == "a":
         group.sendPost("AAAAAAAAAAAAAA")
 
-
     def recvPost(self, user, group, auth, post):
       print(user+":"+post.post)
 
@@ -43,5 +44,5 @@ class Bot(chlib.conManager):
 
 
 if __name__ == "__main__": #no easy starting this time ;D
-    bot = Bot(user = "username", password = "password", pm = True)
+    bot = Bot(user = "username", password = "password", pm = False)
     bot.main()

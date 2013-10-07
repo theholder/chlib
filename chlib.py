@@ -208,7 +208,7 @@ class Group:
   def connect(self):
     self.chSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     self.chSocket.setblocking(True)
-    self.chSocket.connect(("s"+self.snum+".chatango.com", 443))
+    self.chSocket.connect(("s"+str(self.snum)+".chatango.com", 443))
     threading.Timer(90, self.manager.pingTimer, (self,)).start()
     self.wbuf += bytes("bauth:"+self.name+":"+self.uid+":"+self.user+":"+self.password+"\x00", "utf-8")
 

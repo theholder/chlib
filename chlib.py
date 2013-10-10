@@ -291,9 +291,10 @@ class Group:
     self.sendCmd("g_flag", pid)
 
   def ubUser(self, user):
-    banned = [x for x in self.blist if x.user == user][0]
-    self.sendCmd("removeblock", banned.unid, banned.ip, banned.user)
-    self.getBanList()
+    banned = [x for x in self.blist if x.user == user]
+    if banned:
+      self.sendCmd("removeblock", banned[0].unid, banned[0].ip, banned[0].user)
+      self.getBanList()
 
   def setMod(self, mod): self.sendCmd("addmod", mod)
 

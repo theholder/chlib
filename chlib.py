@@ -207,7 +207,7 @@ class Group:
     self.wbuf += bytes("bauth:"+self.name+":"+self.uid+":"+self.user+":"+self.password+"\x00", "latin-1")
 
   def disconnect(self):
-    self.chSock.close()
+    self.chSocket.close()
     manager.cArray.remove(self)
 
   def getBanList(self):

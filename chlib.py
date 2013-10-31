@@ -344,11 +344,6 @@ class conManager:
     threading.Timer(90, self.pingTimer, (self,)).start()
     self.wbuf += bytes("tlogin:"+self.pmAuth+":2:"+self.uid+"\x00", "latin-1")
 
-
-  def disconnect(self):
-    self.pmConnected = False
-    if self in self.cArray: self.cArray.remove(self)
-
   def sendCmd(self, *args): self.wbuf += bytes(':'.join(args)+"\r\n\x00", "latin-1")
 
   def addGroup(self, group):
@@ -563,4 +558,4 @@ class conManager:
           except OSError: rSock.disconnect()
         if len(rbuf) > 0: self.decode(rSock, rbuf)
       time.sleep(0.1)
-    [x.disconnect() for x in self.cArray]
+    [x.chSocket.close() for x in self.cArray]

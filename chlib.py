@@ -4,7 +4,7 @@
 #Description: My take on a flexable chatango library.
 #Contact: charizard.chatango.com
 #Release date: 7/31/2013
-#Version: 1.2
+#Version: 1.3
 ################################
 
 ################################
@@ -18,7 +18,6 @@ import re
 import urllib.request
 import random
 import threading
-
 
 ################################
 #Get server number
@@ -125,7 +124,7 @@ class BannedUser:
 
 class Post:
 
-  def __init__(self, group, time, user, tmp, uid, unid, x, ip, post):
+  def __init__(self, group, time, user, tmp, uid, unid, pnum, ip, post):
     self.time = time
     self.group = group
     if user: self.user = user.lower()
@@ -135,10 +134,7 @@ class Post:
     self.uid = uid
     self.unid = unid
     self.pid = None
-    self.pnum = None
-    try:
-      if int(x): self.pnum = x #if b cmd
-    except ValueError: self.pid = x #if i cmd
+    self.pnum = pnum
     self.ip = ip
     self.fSize = None
     self.fColor = None
@@ -194,9 +190,7 @@ class Group:
     self.users = list()
     self.ping = False
     self.pArray = list()
-    self.post = None
     self.unum = None
-    self.mhist = None
     self.fSize = "11"
     self.fFace = "0"
     self.fColor = "FFF"
@@ -210,8 +204,11 @@ class Group:
     self.chSocket.setblocking(True)
     self.chSocket.connect(("s"+str(self.snum)+".chatango.com", 443))
     threading.Timer(90, self.manager.pingTimer, (self,)).start()
-    self.wbuf += bytes("bauth:"+self.name+":"+self.uid+":"+self.user+":"+self.password+"\x00", "utf-8")
+    self.wbuf += bytes("bauth:"+self.name+":"+self.uid+":"+self.user+":"+self.password+"\x00", "latin-1")
 
+  def disconnect(self):
+    self.chSock.close()
+    manager.cArray.remove(self)
 
   def getBanList(self):
     self.blist = list()
@@ -303,17 +300,13 @@ class Group:
   def clearGroup(self):
     if self.user == self.owner: self.sendCmd("clearall")
     else: #;D
-      if self.mhist:
-        for history in self.pArray: self.sendCmd("delmsg", history.pid)
-
-  def loadHist(self): self.sendCmd("get_more", "35")
+      for history in self.pArray: self.sendCmd("delmsg", history.pid)
 
   
 ################################
 #Connections Manager
 #Handles: New Connections and Connection data
 ################################
-
 
 class conManager:
 
@@ -349,16 +342,14 @@ class conManager:
     self.chSocket.connect(("c1.chatango.com", 5222))
     self.pmAuth = Generate.auth(self)
     threading.Timer(90, self.pingTimer, (self,)).start()
-    self.wbuf += bytes("tlogin:"+self.pmAuth+":2:"+self.uid+"\x00", "utf-8")
+    self.wbuf += bytes("tlogin:"+self.pmAuth+":2:"+self.uid+"\x00", "latin-1")
 
 
-  def pmDisconnect(self):
+  def disconnect(self):
     self.pmConnected = False
-    self.cArray.remove(self)
-
+    if self in self.cArray: self.cArray.remove(self)
 
   def sendCmd(self, *args): self.wbuf += bytes(':'.join(args)+"\r\n\x00", "latin-1")
-
 
   def addGroup(self, group):
     if not self.getGroup(group) in self.cArray:
@@ -366,7 +357,6 @@ class conManager:
       self.cArray.append(group)
       self.groups.append(group.name)
     self.connected = True
-
 
   def removeGroup(self, group):
     group = self.getGroup(group)
@@ -379,11 +369,9 @@ class conManager:
       self.ping = False
       self.connected = False
 
-
   def getGroup(self, group):
     group = [g for g in self.cArray if g.name == group]
     if group: return group[0]
-
 
   def getUser(self, user):
     groups = list()
@@ -392,7 +380,6 @@ class conManager:
         if user.lower() in group.users: groups.append(group.name)
     if groups: return groups
     else: return None
-
 
   def cleanPM(self, pm):
     pm = pm.replace("<m v=\"1\">", "").replace("<g xs0=\"0\">", "")
@@ -406,7 +393,6 @@ class conManager:
 
   def sendPM(self, user, pm): self.sendCmd("msg", user, "<n"+self.nColor+"/><m v=\"1\"><g xs0=\"0\"><g x"+self.fSize+"s"+self.fColor+"=\""+self.fFace+"\">"+pm+"</g></g></m>")
 
-
   def manage(self, group, cmd, bites):
 
     if cmd == "denied":
@@ -416,7 +402,7 @@ class conManager:
         self.connected = False
       self.recvFail(group)
       
-    if cmd == "ok":
+    elif cmd == "ok":
       if bites[3] != 'M': self.removeGroup(group.name)
       else:
         group.owner = bites[1]
@@ -425,24 +411,24 @@ class conManager:
         group.mods = bites[7].split(';')
         group.mods.sort()
 
-    if cmd == "inited":
+    elif cmd == "inited":
       group.pArray.reverse()
       group.sendCmd("blocklist", "block", "", "next", "500")
       group.sendCmd("g_participants", "start")
       group.sendCmd("getbannedwords")
       self.recvInit(group)
 
-    if cmd == "premium":
+    elif cmd == "premium":
       if int(bites[2]) > time.time(): group.sendCmd("msgbg", "1")
 
-    if cmd == "g_participants":
+    elif cmd == "g_participants":
       pl = ":".join(bites[1:]).split(";")
       for p in pl:
         p = p.split(":")[:-1]
         if p[-2] != "None" and p[-1] == "None": group.users.append(p[-2].lower())
       group.users.sort()
 
-    if cmd == "blocklist":
+    elif cmd == "blocklist":
       if bites[1]:
         blklist = (":".join(bites[1:])).split(";")
         for banned in blklist:
@@ -451,11 +437,11 @@ class conManager:
         lastUid = group.blist[-1].uid
         group.sendCmd("blocklist", "block", lastUid, "next", "500")
 
-    if cmd == "bw": group.bw = bites[2].split("%2C")
+    elif cmd == "bw": group.bw = bites[2].split("%2C")
 
-    if cmd == 'participant':
+    elif cmd == 'participant':
       user = None
-      if (bites[1] == '0') and (bites[4] != "None"):
+      if (bites[1] == '0') and (bites[4] != "None") and (bites[4].lower() in group.users):
         group.users.remove(bites[4].lower())
         #self.recvUserLeave(group, user)
       if (bites[1] == '1') and (bites[-4] != "None"):
@@ -463,19 +449,17 @@ class conManager:
         group.users.sort()
         #self.recvUserJoin(group, user)
 
-    if cmd == 'i': group.pArray.append(Post(group, bites[1], bites[2], bites[3], bites[4], bites[5], bites[6], bites[7], ":".join(bites[10:])))
-    if cmd == 'b': group.pArray.insert(int((len(group.pArray)-1)+int(bites[6])), Post(group, bites[1], bites[2], bites[3], bites[4], bites[5], bites[6], bites[7], ":".join(bites[10:])))
-
-    if cmd == 'u' and bites[2] != "psbulg==":
-      post = group.pArray[(len(group.pArray)-(int(bites[1])+1))+int(bites[1])]
+    elif cmd == 'b': group.pArray.append(Post(group, bites[1], bites[2], bites[3], bites[4], bites[5], bites[6], bites[7], ":".join(bites[10:])))
+    elif cmd == 'u' and bites[2] != "psbulg==":
+      post = group.pArray[int(bites[1])-1]
       post.addId(bites[2])
       if post.post: #not blank post
         if post.post[0] == self.cmdPrefix: self.recvCommand(post.user, group, group.getAuth(post.user), post, post.post.split()[0][1:].lower(), " ".join(post.post.split()[1:]))
         self.recvPost(post.user, group, group.getAuth(post.user), post)
 
-    if cmd == "n": group.unum = bites[1]
+    elif cmd == "n": group.unum = bites[1]
 
-    if cmd == "mods":
+    elif cmd == "mods":
       mlist = bites[1:]
       if len(mlist) < len(group.mods):
         rmod = [m for m in group.mods if m not in mlist][0]
@@ -486,25 +470,25 @@ class conManager:
         group.mods.append(amod)
         #self.recvModAdd(group, amod)
 
-    if cmd == "deleteall":
+    elif cmd == "deleteall":
       for pid in bites[1:]:
         deleted = group.getPost("pid", pid)
         if deleted:
           group.pArray.remove(deleted)
           #self.recvPostDelete(group, deleted)
 
-    if cmd == "delete":
+    elif cmd == "delete":
       deleted = group.getPost("pid", bites[1])
       if deleted:
         group.pArray.remove(deleted)
         #self.recvPostDelete(group, deleted)
 
-    if cmd == "blocked":
+    elif cmd == "blocked":
       if bites[3]: self.recvBan(group, bites[3], bites[4])
       else: self.recvBan(group, group.getPost("unid", bites[1]).user, bites[4])
       group.getBanList()
 
-    if cmd == "unblocked":
+    elif cmd == "unblocked":
       if group.name == "pm": self.bl.remove(bites[1])
       else:
         if bites[3]:
@@ -514,44 +498,39 @@ class conManager:
           pass
           #self.recvUnban(group, "Non-member", bites[4])
 
-    if cmd == "logoutok": group.user  = "!anon" + Generate.aid(self, self.nColor, group.uid)
-    if cmd == "pwdok":
+    elif cmd == "logoutok": group.user  = "!anon" + Generate.aid(self, self.nColor, group.uid)
+    elif cmd == "pwdok":
       pass
       #self.recvLogin(group)
 
-    if cmd == "clearall":
+    elif cmd == "clearall":
       if bites[1] == "ok": group.pArray = list()
-      #self.recvGroupClear(group)
 
-    if cmd == "nomore":
-      group.mhist = True
-      #self.recvHistLoad(group)
-
-    if cmd == "show_fw":
+    elif cmd == "show_fw":
       pass
       #self.recvFlWarning(group)
 
-    if cmd == "show_tb":
+    elif cmd == "show_tb":
       #self.recvGroupBan(group)
       pass
 
-    if cmd == "tb":
+    elif cmd == "tb":
       mins, secs = divmod(int(bites[1]), 60)
       #self.recvGroupBanUpdate(mins, secs)
 
-    if cmd == "OK":
+    elif cmd == "OK":
       self.sendCmd("wl")
       self.recvPMInit(group)
 
-    if cmd == "wl":
+    elif cmd == "wl":
       for i in range(1, len(bites), 4): self.fl.append(bites[i])
       self.fl.sort()
 
-    if cmd == "msg": self.recvPM(bites[1], self.cleanPM(":".join(bites[6:])))
-    if cmd == "msgoff":
+    elif cmd == "msg": self.recvPM(bites[1], self.cleanPM(":".join(bites[6:])))
+    elif cmd == "msgoff":
       #self.recvOfflinePM(bites[1], self.cleanPM(":".join(bites[6:])))
       pass
-    if cmd == "kickingoff": self.recvPMKick()
+    elif cmd == "kickingoff": self.recvPMKick()
 
 
   def decode(self, group, buffer):
@@ -574,11 +553,14 @@ class conManager:
     while self.connected or self.pmConnected:
       rSocks, wSocks, eSocks = select.select(self.cArray, self.cArray, self.cArray)
       for wSock in wSocks:
-        if wSock.wbuf: wSock.chSocket.send(wSock.wbuf)
-        wSock.wbuf = b""
+        if wSock.wbuf:
+          wSock.chSocket.send(wSock.wbuf)
+          wSock.wbuf = b""
       for rSock in rSocks:
         rbuf = b""
-        while not rbuf.endswith(b'\x00'): rbuf += rSock.chSocket.recv(1024) #need the WHOLE buffer ;D
+        while not rbuf.endswith(b'\x00'):
+          try: rbuf += rSock.chSocket.recv(1024) #need the WHOLE buffer ;D
+          except OSError: rSock.disconnect()
         if len(rbuf) > 0: self.decode(rSock, rbuf)
       time.sleep(0.1)
-    [x.chSocket.close() for x in self.cArray]
+    [x.disconnect() for x in self.cArray]

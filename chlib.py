@@ -469,13 +469,13 @@ class conManager:
       for pid in bites[1:]:
         deleted = group.getPost("pid", pid)
         if deleted:
-          group.pArray.remove(deleted)
+          pass
           #self.recvPostDelete(group, deleted)
 
     elif cmd == "delete":
       deleted = group.getPost("pid", bites[1])
       if deleted:
-        group.pArray.remove(deleted)
+        pass
         #self.recvPostDelete(group, deleted)
 
     elif cmd == "blocked":
@@ -499,7 +499,7 @@ class conManager:
       #self.recvLogin(group)
 
     elif cmd == "clearall":
-      if bites[1] == "ok": group.pArray = list()
+      if bites[1] == "ok": group.pArray = []
 
     elif cmd == "show_fw":
       pass

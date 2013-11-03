@@ -549,7 +549,8 @@ class conManager:
       rSocks, wSocks, eSocks = select.select(self.cArray, self.cArray, self.cArray)
       for wSock in wSocks:
         if wSock.wbuf:
-          wSock.chSocket.send(wSock.wbuf)
+          try: wSock.chSocket.send(wSock.wbuf)
+          except BrokenPipeError: wSock.disconnect()
           wSock.wbuf = b""
       for rSock in rSocks:
         rbuf = b""

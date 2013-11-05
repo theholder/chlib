@@ -31,11 +31,11 @@ class Bot(chlib.conManager):
         group.sendPost("AAAAAAAAAAAAAA")
 
     def recvPost(self, user, group, auth, post):
-      print(user+":"+post.post)
+      print(user+": "+post.post)
 
 
     def recvPM(self, user, pm):
-      print("PM:"+user+": "+pm)
+      print("PM: "+user+": "+pm)
       self.sendPM(user, pm) # echo
 
 

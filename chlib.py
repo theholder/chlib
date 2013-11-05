@@ -189,11 +189,11 @@ class Group:
     self.bw = list()
     self.users = list()
     self.ping = False
-    self.pArray = list()
+    self.pArray = {}
     self.unum = None
     self.fSize = "11"
     self.fFace = "0"
-    self.fColor = "FFF"
+    self.fColor = "000"
     self.nColor = "CCC"
     self.connect()
 
@@ -217,7 +217,7 @@ class Group:
   def sendCmd(self, *args): self.wbuf += bytes(':'.join(args)+"\r\n\x00", "latin-1")
 
   def getLastPost(self, user):
-    try: post = [x for x in self.pArray if x.user == user][-1]
+    try: post = [x for x in list(a.values()) if x.user == user][-1]
     except IndexError: post = None
     return post
 
@@ -254,7 +254,7 @@ class Group:
     else: return "0"
 
   def getPost(self, var, pData):
-    try: post = [x for x in self.pArray if getattr(x, var) == pData][0]
+    try: post = [x for x in self.pArray.items() if getattr(x[1], var) == pData][0]
     except IndexError: post = None
     return post
 
@@ -266,7 +266,7 @@ class Group:
   def dlPost(self, post): self.sendCmd("delmsg", post.pid)
 
   def dlUser(self, user):
-    post = self.getPost("user", user)
+    post = self.getPost("user", user)[1]
     unid = None
     if post: unid = post.unid
     if unid: self.sendCmd("delallmsg", unid, "")
@@ -275,8 +275,8 @@ class Group:
     unid = None
     ip = None
     try:
-      unid = self.getPost("user", user).unid
-      ip = self.getPost("user", user).ip
+      unid = self.getPost("user", user).unid[1]
+      ip = self.getPost("user", user).ip[1]
     except: pass
     if unid and ip:
       if (user.startswith("#")) or (user.startswith("!")): self.sendCmd("block", unid, ip, "")
@@ -284,7 +284,7 @@ class Group:
     self.getBanList()
 
   def flUser(self, user):
-    pid = self.getPost("user", user).pid
+    pid = self.getPost("user", user).pid[1]
     self.sendCmd("g_flag", pid)
 
   def ubUser(self, user):
@@ -300,7 +300,7 @@ class Group:
   def clearGroup(self):
     if self.user == self.owner: self.sendCmd("clearall")
     else: #;D
-      for history in self.pArray: self.sendCmd("delmsg", history.pid)
+      for history in list(self.pArray.values()): self.sendCmd("delmsg", history.pid)
 
   
 ################################
@@ -376,16 +376,7 @@ class conManager:
     if groups: return groups
     else: return None
 
-  def cleanPM(self, pm):
-    pm = pm.replace("<m v=\"1\">", "").replace("<g xs0=\"0\">", "")
-    pm = re.sub("</(.*?)>", "", pm)
-    pm = re.sub("<n(.*?)/>", "", pm)
-    pm = re.sub("<g x(.*?)\">", "", pm)
-    pm = re.sub("<mws c='(.*?)' s='(.*?)'/>", "", pm)
-    pm = re.sub(" <i s=\"sm://(.*?)\" w=\"(.*?)\" h=\"(.*?)\"/>", "", pm)
-    pm = re.sub("<i s=\"sm://(.*?)\" w=\"(.*?)\" h=\"(.*?)\"/> ", "", pm)
-    return pm
-
+  def cleanPM(self, pm): return re.sub("<i s=\"sm://(.*?)\" w=\"(.*?)\" h=\"(.*?)\"/> ", "", re.sub(" <i s=\"sm://(.*?)\" w=\"(.*?)\" h=\"(.*?)\"/>", "", re.sub("<mws c='(.*?)' s='(.*?)'/>", "", re.sub("<g x(.*?)\">", "", re.sub("<n(.*?)/>", "", re.sub("</(.*?)>", "", pm.replace("<m v=\"1\">", "").replace("<g xs0=\"0\">", "")))))))
   def sendPM(self, user, pm): self.sendCmd("msg", user, "<n"+self.nColor+"/><m v=\"1\"><g xs0=\"0\"><g x"+self.fSize+"s"+self.fColor+"=\""+self.fFace+"\">"+pm+"</g></g></m>")
 
   def manage(self, group, cmd, bites):
@@ -407,7 +398,6 @@ class conManager:
         group.mods.sort()
 
     elif cmd == "inited":
-      group.pArray.reverse()
       group.sendCmd("blocklist", "block", "", "next", "500")
       group.sendCmd("g_participants", "start")
       group.sendCmd("getbannedwords")
@@ -444,13 +434,13 @@ class conManager:
         group.users.sort()
         #self.recvUserJoin(group, user)
 
-    elif cmd == 'b': group.pArray.append(Post(group, bites[1], bites[2], bites[3], bites[4], bites[5], bites[6], bites[7], ":".join(bites[10:])))
+    elif cmd == 'b': group.pArray[int(bites[6])] = Post(group, bites[1], bites[2], bites[3], bites[4], bites[5], bites[6], bites[7], ":".join(bites[10:]))
     elif cmd == 'u' and bites[2] != "psbulg==":
-      post = group.pArray[int(bites[1])-1]
+      post = group.pArray[int(bites[1])]
       post.addId(bites[2])
       if post.post: #not blank post
-        if post.post[0] == self.cmdPrefix: self.recvCommand(post.user, group, group.getAuth(post.user), post, post.post.split()[0][1:].lower(), " ".join(post.post.split()[1:]))
         self.recvPost(post.user, group, group.getAuth(post.user), post)
+        if post.post[0] == self.cmdPrefix: self.recvCommand(post.user, group, group.getAuth(post.user), post, post.post.split()[0][1:].lower(), " ".join(post.post.split()[1:]))
 
     elif cmd == "n": group.unum = bites[1]
 
@@ -469,18 +459,18 @@ class conManager:
       for pid in bites[1:]:
         deleted = group.getPost("pid", pid)
         if deleted:
-          pass
+          del group.pArray[deleted[0]]
           #self.recvPostDelete(group, deleted)
 
     elif cmd == "delete":
       deleted = group.getPost("pid", bites[1])
       if deleted:
-        pass
+        del group.pArray[deleted[0]]
         #self.recvPostDelete(group, deleted)
 
     elif cmd == "blocked":
       if bites[3]: self.recvBan(group, bites[3], bites[4])
-      else: self.recvBan(group, group.getPost("unid", bites[1]).user, bites[4])
+      else: self.recvBan(group, group.getPost("unid", bites[1]).user[1], bites[4])
       group.getBanList()
 
     elif cmd == "unblocked":
@@ -499,7 +489,7 @@ class conManager:
       #self.recvLogin(group)
 
     elif cmd == "clearall":
-      if bites[1] == "ok": group.pArray = []
+      if bites[1] == "ok": group.pArray = {}
 
     elif cmd == "show_fw":
       pass

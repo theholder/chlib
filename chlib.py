@@ -460,13 +460,13 @@ class conManager:
         deleted = group.getPost("pid", pid)
         if deleted:
           del group.pArray[deleted[0]]
-          #self.recvPostDelete(group, deleted)
+          #self.recvPostDelete(group, deleted[1])
 
     elif cmd == "delete":
       deleted = group.getPost("pid", bites[1])
       if deleted:
         del group.pArray[deleted[0]]
-        #self.recvPostDelete(group, deleted)
+        #self.recvPostDelete(group, deleted[1])
 
     elif cmd == "blocked":
       if bites[3]: self.recvBan(group, bites[3], bites[4])

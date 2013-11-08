@@ -275,8 +275,8 @@ class Group:
     unid = None
     ip = None
     try:
-      unid = self.getPost("user", user).unid[1]
-      ip = self.getPost("user", user).ip[1]
+      unid = self.getPost("user", user)[1].unid
+      ip = self.getPost("user", user)[1].ip
     except: pass
     if unid and ip:
       if (user.startswith("#")) or (user.startswith("!")): self.sendCmd("block", unid, ip, "")
@@ -284,7 +284,7 @@ class Group:
     self.getBanList()
 
   def flUser(self, user):
-    pid = self.getPost("user", user).pid[1]
+    pid = self.getPost("user", user)[1].pid
     self.sendCmd("g_flag", pid)
 
   def ubUser(self, user):
@@ -470,7 +470,7 @@ class conManager:
 
     elif cmd == "blocked":
       if bites[3]: self.recvBan(group, bites[3], bites[4])
-      else: self.recvBan(group, group.getPost("unid", bites[1]).user[1], bites[4])
+      else: self.recvBan(group, group.getPost("unid", bites[1])[1].user, bites[4])
       group.getBanList()
 
     elif cmd == "unblocked":

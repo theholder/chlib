@@ -266,9 +266,9 @@ class Group:
   def dlPost(self, post): self.sendCmd("delmsg", post.pid)
 
   def dlUser(self, user):
-    post = self.getPost("user", user)[1]
+    post = self.getPost("user", user)
     unid = None
-    if post: unid = post.unid
+    if post: unid = post[1].unid
     if unid: self.sendCmd("delallmsg", unid, "")
 
   def bUser(self, user):

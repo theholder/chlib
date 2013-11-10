@@ -217,7 +217,7 @@ class Group:
   def sendCmd(self, *args): self.wbuf += bytes(':'.join(args)+"\r\n\x00", "latin-1")
 
   def getLastPost(self, user):
-    try: post = [x for x in list(group.pArray.values()) if x.user == user][-1]
+    try: post = [x for x in list(self.pArray.values()) if x.user == user][-1]
     except IndexError: post = None
     return post
 

@@ -382,7 +382,7 @@ class conManager:
   def manage(self, group, cmd, bites):
 
     if cmd == "denied":
-      self.getGroup(group.name).chSocket.close()
+      group.chSocket.close()
       self.cArray.remove(self.getGroup(group.name))
       if not self.cArray:
         self.connected = False

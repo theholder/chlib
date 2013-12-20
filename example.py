@@ -8,41 +8,33 @@ class Bot(chlib.conManager):
       if self.pm:
         self.cArray.append(self)
         self.pmConnected = True
-      self.cmdPrefix = "!" #optional, just won't call any commands.
+      self.cmdPrefix = "!" #optional, just won't call any commands if not specified.
 
-    def recvFail(self, group):
+    def recvDenied(self, group):
       print("Failed to connect to "+group.name)
 
-    def recvInit(self, group):
+    def recvInited(self, group):
       print("Connected to "+group.name)
 
-
-    def recvPMInit(self, group):
+    def recvOK(self, group):
       print("Connected to "+group.name)
-
 
     def recvRemove(self, group):
       print("Disconnected from "+group.name)
 
-
     def recvCommand(self, user, group, auth, post, cmd, args):
-
-      if cmd == "a":
-        group.sendPost("AAAAAAAAAAAAAA")
+      if cmd == "a": group.sendPost("AAAAAAAAAAAAAA")
 
     def recvPost(self, user, group, auth, post):
       print(user+": "+post.post)
 
-
-    def recvPM(self, user, pm):
+    def recvMsg(self, group, user, pm):
       print("PM: "+user+": "+pm)
       self.sendPM(user, pm) # echo
 
-
-    def recvPMKick(self):
+    def recvKickingoff(self):
       self.pmConnect()
 
-
 if __name__ == "__main__": #no easy starting this time ;D
-    bot = Bot(user = "username", password = "password", pm = False)
+    bot = Bot(user = "user", password = "password", pm = True)
     bot.main()

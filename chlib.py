@@ -412,7 +412,7 @@ class conManager:
   def decode(self, group, buffer):
     buffer = buffer.split(b"\x00")
     for raw in buffer:
-      if raw: self.manage(group, raw.decode("latin-1")[:-2].split(":")[0], bites)
+      if raw: self.manage(group, raw.decode("latin-1")[:-2].split(":")[0], raw.decode("latin-1")[:-2].split(":"))
 
   def pingTimer(self, group):
     group.ping = True

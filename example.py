@@ -32,7 +32,7 @@ class Bot(chlib.conManager):
       print("PM: "+user+": "+pm)
       self.sendPM(user, pm) # echo
 
-    def recvKickingoff(self):
+    def recvKickingoff():
       self.pmConnect()
 
 if __name__ == "__main__": #no easy starting this time ;D

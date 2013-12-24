@@ -4,7 +4,7 @@
 #Description: My take on a flexable chatango library.
 #Contact: charizard.chatango.com
 #Release date: 7/31/2013
-#Version: 1.4
+#Version: 1.5
 ################################
 
 ################################
@@ -35,37 +35,18 @@ def getServer(group):
   if group in specials.keys(): s_num = specials[group]
   else:
     weights = [['5', 75], ['6', 75], ['7', 75], ['8', 75], ['16', 75], ['17', 75], ['18', 75], ['9', 95], ['11', 95], ['12', 95], ['13', 95], ['14', 95], ['15', 95], ['19', 110], ['23', 110], ['24', 110], ['25', 110], ['26', 110], ['28', 104], ['29', 104], ['30', 104], ['31', 104], ['32', 104], ['33', 104], ['35', 101], ['36', 101], ['37', 101], ['38', 101], ['39', 101], ['40', 101], ['41', 101], ['42', 101], ['43', 101], ['44', 101], ['45', 101], ['46', 101], ['47', 101], ['48', 101], ['49', 101], ['50', 101], ['52', 110], ['53', 110], ['55', 110], ['57', 110], ['58', 110], ['59', 110], ['60', 110], ['61', 110], ['62', 110], ['63', 110], ['64', 110], ['65', 110], ['66', 110], ['68', 95], ['71', 116], ['72', 116], ['73', 116], ['74', 116], ['75', 116], ['76', 116], ['77', 116], ['78', 116], ['79', 116], ['80', 116], ['81', 116], ['82', 116], ['83', 116], ['84', 116]]
-    group = 'q'.join(group.split('_'))
-    group = 'q'.join(group.split('-'))
-    tmp10 = min(5, len(group))
-    tmp12 = int(group[:tmp10], 36)
-    if len(group) > 6:
-      tmp11 = group[6:][:min(3, len(group) - 5)]
-      tmp8 = int(tmp11, 36)
-    else: tmp8 = 1000
-    if type(tmp8) != int or tmp8 <= 1000 or tmp8 == None: tmp8 = 1000
+    group = group.replace('-', 'q').replace('_', 'q')
+    tmp12 = int(group[:5], 36)
+    tmp8 = int(group[6:][:min(3, len(group) - 5)], 36) if len(group) > 6 else 1000
     tmp9 = (tmp12 % tmp8) / tmp8
-    tmp6 = 0
-    tmp1 = 0
-    while tmp1 < len(weights):
-      tmp6 += weights[tmp1][1]
-      tmp1 += 1
+    tmp6 = sum(x[1] for x in weights)
     tmp4 = 0
-    tmp5 = [0]*100
-    tmp1 = 0
-    while tmp1 < len(weights):
-      tmp4 += weights[tmp1][1] / tmp6
-      tmp5[int(weights[tmp1][0])] = tmp4
-      tmp1 += 1
-    tmp1 = 0
-    while tmp1 < len(weights):
-      if (tmp9 <= tmp5[int(weights[tmp1][0])]):
-        s_num = weights[tmp1][0]
+    for i in range(0, len(weights)):
+      tmp4 += weights[i][1] / tmp6
+      if (tmp9 <= tmp4):
+        s_num = weights[i][0]
         break
-      tmp1 += 1
-
   return s_num
-
 
 ################################
 #Generate Auth/Anon ID
@@ -78,15 +59,8 @@ class Generate:
       if (int(n) == 0) or (len(n) < 4): n = "3452"
     except ValueError: n = "3452"
     if n != "3452": n = str(int(n))[-4:]
-    uid = str(uid)[4:][:4]
-    v1 = 0
-    v5 = ""
-    while v1 < len(n):
-      v4 = n[v1:][:1]
-      v3 = uid[v1:][:1]
-      v2 = str(int(v4)+int(v3))
-      v5 += v2[len(v2) - 1:]
-      v1 += 1
+    v1, v5 = 0, ""
+    for i in range(0, len(n)): v5 += str(int(n[i:][:1])+int(str(uid)[4:][:4][i:][:1]))[len(str(int(n[i:][:1])+int(str(uid)[4:][:4][i:][:1]))) - 1:]
     return v5
 
   def auth(self):
@@ -99,65 +73,6 @@ class Generate:
                                   ).getheader("Set-Cookie")
     try: return re.search("auth.chatango.com=(.*?);", auth).group(1)
     except: return None
-
-
-################################
-#Represents group banned users
-################################
-
-class BannedUser:
-
-  def __init__(self, unid, ip, user, uid, mod):
-    self.unid = unid
-    self.ip = ip
-    if user: self.user = user
-    else: self.user = None
-    self.uid = uid
-    self.mod = mod
-
-################################
-#Represents group posts
-################################
-
-class Post:
-
-  def __init__(self, group, time, user, tmp, uid, unid, pnum, ip, post):
-    self.time = time
-    self.group = group
-    if user: self.user = user.lower()
-    elif tmp: self.user = "#" + tmp.lower()
-    else: self.user = "!anon"
-    self.tmp = tmp
-    self.uid = uid
-    self.unid = unid
-    self.pid = None
-    self.pnum = pnum
-    self.ip = ip
-    self.fSize = None
-    self.fColor = None
-    self.fFace = None
-    self.nColor = None
-    self.n = None
-    self.post = self.cleanPost(post)
-
-  def addId(self, pid): self.pid = pid
-  def cleanPost(self, post):
-    self.n = re.search("<n(.*?)/>", post)
-    if self.n and self.user == "!anon": self.user += Generate.aid(self, self.n.group(1), self.uid)
-    elif self.n: self.nColor = self.n.group(1)
-    post = re.sub("<n(.*?)/>", "", post)
-    try:
-      fTag = re.search("<f x(.*?)>", post).group(1)
-      self.fSize = fTag[:2]
-      self.fFace = re.search("(.*?)=\"(.*?)\"", fTag).group(2)
-      self.fColor = re.search(self.fSize+"(.*?)=\""+self.fFace+"\"", fTag).group(1)
-    except:
-      self.fSize = "11"
-      self.fColor = "000"
-      self.fFace = "0"
-    if not self.fColor: self.fColor == "000"
-    post = re.sub("<(.*?)>", "", post).replace("&lt;", "<").replace("&gt;", ">").replace("&quot;", "\"").replace("&apos;", "'").replace("&amp;", "&")
-    return post
 
 ################################
 #Represents chat groups
@@ -286,7 +201,6 @@ class Group:
     if self.user == self.owner: self.sendCmd("clearall")
     else: #;D
       for history in list(self.pArray.values()): self.sendCmd("delmsg", history.pid)
-
   
 ################################
 #Connections Manager
@@ -402,12 +316,11 @@ class conManager:
         blklist = (":".join(bites[1:])).split(";")
         for banned in blklist:
           bData = banned.split(":")
-          group.blist.append(BannedUser(bData[0], bData[1], bData[2], bData[3], bData[4]))
+          group.blist.append(type("BannedUser", (object,), {"unid": bData[0], "ip": bData[1], "user": bData[2], "uid": bData[3], "mod": bData[4]}))
         lastUid = group.blist[-1].uid
         group.sendCmd("blocklist", "block", lastUid, "next", "500")
 
     elif cmd == "bw": group.bw = bites[2].split("%2C")
-
     elif cmd == 'participant':
       user = None
       if (bites[1] == '0') and (bites[4] != "None") and (bites[4].lower() in group.users):
@@ -417,16 +330,26 @@ class conManager:
         group.users.sort()
       args = [bites[1], group, user]
 
-    elif cmd == 'b': group.pArray[int(bites[6])] = Post(group, bites[1], bites[2], bites[3], bites[4], bites[5], bites[6], bites[7], ":".join(bites[10:]))
+    elif cmd == 'b':
+      try:
+        fTag = re.search("<f x(.*?)>", bites[10]).group(1)
+        fSize = fTag[:2]
+        fFace = re.search("(.*?)=\"(.*?)\"", fTag).group(2)
+        fColor = re.search(self.fSize+"(.*?)=\""+self.fFace+"\"", fTag).group(1)
+      except:
+        fSize = "11"
+        fColor = "000"
+        fFace = "0"
+      group.pArray[int(bites[6])] = type("Post", (object,), {"group": group, "time": bites[1], "user": bites[2].lower() if bites[2] != '' else "#" + bites[3] if bites[3] != '' else "!anon" + Generate.aid(self, re.search("<n(.*?)/>", bites[10]).group(1), bites[4]) if re.search("<n(.*?)/>", bites[10]) != None else None , "tmp": bites[3] if bites[3] != '' else None, "uid": bites[4], "unid": bites[5], "pnum": bites[6], "ip": bites[7], "post": re.sub("<(.*?)>", "", ":".join(bites[10:])).replace("&lt;", "<").replace("&gt;", ">").replace("&quot;", "\"").replace("&apos;", "'").replace("&amp;", "&"), "n": re.search("<n(.*?)/>", bites[10]), "fSize": fSize, "fFace": fFace, "fColor": fColor})
+
     elif cmd == 'u':
       post = group.pArray[int(bites[1])]
-      post.addId(bites[2])
+      setattr(post, "pid", bites[2])
       if post.post: #not blank post
         self.recvPost(post.user, group, group.getAuth(post.user), post)
         if post.post[0] == self.cmdPrefix: self.recvCommand(post.user, group, group.getAuth(post.user), post, post.post.split()[0][1:].lower(), " ".join(post.post.split()[1:]))
 
     elif cmd == "n": group.unum = bites[1]
-
     elif cmd == "mods":
       mlist = bites[1:]
       mod = ""
@@ -489,10 +412,7 @@ class conManager:
   def decode(self, group, buffer):
     buffer = buffer.split(b"\x00")
     for raw in buffer:
-      if raw:
-        bites = raw.decode("latin-1")[:-2].split(":")
-        cmd = bites[0]
-        self.manage(group, cmd, bites)
+      if raw: self.manage(group, raw.decode("latin-1")[:-2].split(":")[0], bites)
 
   def pingTimer(self, group):
     group.ping = True

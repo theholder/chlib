@@ -115,7 +115,7 @@ class Group:
 
   def disconnect(self):
     self.chSocket.close()
-    self.manager.cArray.remove(self)
+    if self in self.manager.cArray: self.manager.cArray.remove(self)
 
   def getBanList(self):
     self.blist = list()

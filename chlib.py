@@ -403,8 +403,8 @@ class conManager:
       for i in range(1, len(bites), 4): self.fl.append(bites[i])
       self.fl.sort()
 
-    elif cmd == "msg": args = [group, bites[1], self.cleanPM(":".join(bites[6:]))]
-    elif cmd == "msgoff": args = [group, bites[1], self.cleanPM(":".join(bites[6:]))]
+    elif cmd == "msg": args = [bites[1], self.cleanPM(":".join(bites[6:]))]
+    elif cmd == "msgoff": args = [bites[1], self.cleanPM(":".join(bites[6:]))]
 
     if hasattr(self, "recv"+cmd.capitalize()): getattr(self, "recv"+cmd.capitalize())(*args)
 

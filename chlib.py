@@ -406,7 +406,7 @@ class conManager:
     elif cmd == "msg": args = [bites[1], self.cleanPM(":".join(bites[6:]))]
     elif cmd == "msgoff": args = [bites[1], self.cleanPM(":".join(bites[6:]))]
 
-    if hasattr(self, "recv"+cmd.capitalize()): getattr(self, "recv"+cmd.capitalize())(*args)
+    if hasattr(self, "recv"+cmd): getattr(self, "recv"+cmd)(*args)
 
   def decode(self, group, buffer):
     buffer = buffer.split(b"\x00")

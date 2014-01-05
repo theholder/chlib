@@ -10,10 +10,10 @@ class Bot(chlib.conManager):
         self.pmConnected = True
       self.cmdPrefix = "!" #optional, just won't call any commands if not specified.
 
-    def recvDenied(self, group):
+    def recvdenied(self, group):
       print("Failed to connect to "+group.name)
 
-    def recvInited(self, group):
+    def recvinited(self, group):
       print("Connected to "+group.name)
 
     def recvOK(self, group):
@@ -28,11 +28,11 @@ class Bot(chlib.conManager):
     def recvPost(self, user, group, auth, post):
       print(user+": "+post.post)
 
-    def recvMsg(self, group, user, pm):
+    def recvmsg(self, group, user, pm):
       print("PM: "+user+": "+pm)
       self.sendPM(user, pm) # echo
 
-    def recvKickingoff():
+    def recvkickingoff():
       self.pmConnect()
 
 if __name__ == "__main__": #no easy starting this time ;D

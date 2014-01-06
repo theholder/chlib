@@ -367,12 +367,14 @@ class conManager:
         if deleted:
           args = [group, deleted]
           del group.pArray[int(deleted.pnum)]
+        else: args = [group, None]
 
     elif cmd == "delete":
       deleted = group.getLastPost(bites[1], "pid")
       if deleted:
         args = [group, deleted]
         del group.pArray[int(deleted.pnum)]
+      else: args = [group, None]
 
     elif cmd == "blocked":
       if bites[3]: self.recvBan(group, bites[3], bites[4])
@@ -406,7 +408,7 @@ class conManager:
     elif cmd == "msg": args = [bites[1], self.cleanPM(":".join(bites[6:]))]
     elif cmd == "msgoff": args = [bites[1], self.cleanPM(":".join(bites[6:]))]
 
-    if hasattr(self, "recv"+cmd): getattr(self, "recv"+cmd)(*args)
+    if hasattr(self, "recv"+cmd) and None not in args: getattr(self, "recv"+cmd)(*args)
 
   def decode(self, group, buffer):
     buffer = buffer.split(b"\x00")

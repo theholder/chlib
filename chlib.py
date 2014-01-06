@@ -377,10 +377,10 @@ class conManager:
       else: args = [group, None]
 
     elif cmd == "blocked":
-      if bites[3]: self.recvBan(group, bites[3], bites[4])
+      if bites[3]: args = [group, bites[3], bites[4]]
       else:
         post = group.getLastPost(bites[1], "unid")
-        if post: self.recvBan(group, post.user, bites[4])
+        if post: args = [group, post.user, bites[4]]
       group.getBanList()
 
     elif cmd == "unblocked":

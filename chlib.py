@@ -400,7 +400,6 @@ class conManager:
       args = [group, mins, secs]
 
     elif cmd == "OK": self.sendCmd("wl")
-
     elif cmd == "wl":
       for i in range(1, len(bites), 4): self.fl.append(bites[i])
       self.fl.sort()
@@ -425,12 +424,11 @@ class conManager:
   def main(self):
     self.run()
     while self.connected or self.pmConnected:
-      rSocks, wSocks, eSocks = select.select(self.cArray, self.cArray, self.cArray)
+      rSocks, wSocks, eSocks = select.select(self.cArray, [x for x in self.cArray if x.wbuf], self.cArray)
       for wSock in wSocks:
-        if wSock.wbuf:
-          try: wSock.chSocket.send(wSock.wbuf)
-          except BrokenPipeError: wSock.disconnect()
-          wSock.wbuf = b""
+        try: wSock.chSocket.send(wSock.wbuf)
+        except BrokenPipeError: wSock.disconnect()
+        wSock.wbuf = b""
       for rSock in rSocks:
         rbuf = b""
         while not rbuf.endswith(b'\x00'):

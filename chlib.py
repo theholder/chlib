@@ -342,11 +342,13 @@ class conManager:
       group.pArray[int(bites[6])] = type("Post", (object,), {"group": group, "time": bites[1], "user": bites[2].lower() if bites[2] != '' else "#" + bites[3] if bites[3] != '' else "!anon" + Generate.aid(self, re.search("<n(.*?)/>", bites[10]).group(1), bites[4]) if re.search("<n(.*?)/>", bites[10]) != None else None , "tmp": bites[3] if bites[3] != '' else None, "uid": bites[4], "unid": bites[5], "pnum": bites[6], "ip": bites[7], "post": re.sub("<(.*?)>", "", ":".join(bites[10:])).replace("&lt;", "<").replace("&gt;", ">").replace("&quot;", "\"").replace("&apos;", "'").replace("&amp;", "&"), "n": re.search("<n(.*?)/>", bites[10]), "fSize": fSize, "fFace": fFace, "fColor": fColor})
 
     elif cmd == 'u':
-      post = group.pArray[int(bites[1])]
-      setattr(post, "pid", bites[2])
-      if post.post: #not blank post
-        self.recvPost(post.user, group, group.getAuth(post.user), post)
-        if post.post[0] == self.cmdPrefix: self.recvCommand(post.user, group, group.getAuth(post.user), post, post.post.split()[0][1:].lower(), " ".join(post.post.split()[1:]))
+      try:
+        post = group.pArray[int(bites[1])]
+        setattr(post, "pid", bites[2])
+        if post.post: #not blank post
+          self.recvPost(post.user, group, group.getAuth(post.user), post)
+          if post.post[0] == self.cmdPrefix: self.recvCommand(post.user, group, group.getAuth(post.user), post, post.post.split()[0][1:].lower(), " ".join(post.post.split()[1:]))
+      except KeyError: pass
 
     elif cmd == "n": group.unum = bites[1]
     elif cmd == "mods":

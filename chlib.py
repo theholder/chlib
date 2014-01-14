@@ -327,7 +327,7 @@ class conManager:
       if (bites[1] == '1') and (bites[-4] != "None"):
         group.users.append(bites[4].lower())
         group.users.sort()
-      args = [bites[1], group, user]
+      args = [bites[1], group, user, bites[3]]
 
     elif cmd == 'b':
       try:

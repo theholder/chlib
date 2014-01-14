@@ -16,8 +16,8 @@ The group method's are now based on the command chatango send's. recvOldMethodNa
 
 recvFailedLogin(group) = recvdenied(group)
 recvInit(group) = recvinited(group)
-recvUserLeave(group, user) = recvparticipant(bit, group, user) NOTE: bit = 0
-recvUserJoin(group, user) = recvparticipant(bit, group, user) NOTE: bit = 1
+recvUserLeave(group, user) = recvparticipant(bit, group, user, uid) NOTE: bit = 0
+recvUserJoin(group, user) = recvparticipant(bit, group, user, uid) NOTE: bit = 1
 recvCommand(user, group, auth, post, command, command arguments) NOTE: unchanged
 recvPost(user, group, auth, post) NOTE: unchanged
 recvModErase(group, user) = recvmods(left, group, mod) NOTE: left = true

@@ -334,7 +334,7 @@ class conManager:
         fTag = re.search("<f x(.*?)>", bites[10]).group(1)
         fSize = fTag[:2]
         fFace = re.search("(.*?)=\"(.*?)\"", fTag).group(2)
-        fColor = re.search(self.fSize+"(.*?)=\""+self.fFace+"\"", fTag).group(1)
+        fColor = re.search(fSize+"(.*?)=\""+fFace+"\"", fTag).group(1)
       except:
         fSize = "11"
         fColor = "000"

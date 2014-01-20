@@ -99,6 +99,8 @@ class Group:
     self.ping = False
     self.pArray = {}
     self.unum = None
+    self.limit = 0
+    self.limited = 0
     self.fSize = "11"
     self.fFace = "0"
     self.fColor = "000"
@@ -129,7 +131,7 @@ class Group:
 
   def sendPost(self, post, html = True):
     if not html: post = post.replace("<", "&lt;").replace(">", "&gt;")
-    if len(post) < 2700: self.sendCmd("bmsg", "t12r", "<n"+self.nColor+"/><f x"+self.fSize+self.fColor+"=\""+self.fFace+"\">"+post)
+    if len(post) < 2700 and self.limited == 0: self.sendCmd("bmsg", "t12r", "<n"+self.nColor+"/><f x"+self.fSize+self.fColor+"=\""+self.fFace+"\">"+post)
 
   def login(self, user, password = None):
     if user and password:
@@ -278,7 +280,7 @@ class conManager:
   def sendPM(self, user, pm): self.sendCmd("msg", user, "<n"+self.nColor+"/><m v=\"1\"><g xs0=\"0\"><g x"+self.fSize+"s"+self.fColor+"=\""+self.fFace+"\">"+pm+"</g></g></m>")
 
   def manage(self, group, cmd, bites):
-    
+
     args = [group]
     
     if cmd == "denied":
@@ -299,9 +301,14 @@ class conManager:
       group.sendCmd("blocklist", "block", "", "next", "500")
       group.sendCmd("g_participants", "start")
       group.sendCmd("getbannedwords")
+      group.sendCmd("getratelimit")
 
     elif cmd == "premium":
       if int(bites[2]) > time.time(): group.sendCmd("msgbg", "1")
+
+    elif cmd == "getratelimit":
+      group.limit = int(bites[1])
+      group.limited = int(bites[2])
 
     elif cmd == "g_participants":
       pl = ":".join(bites[1:]).split(";")
@@ -328,6 +335,12 @@ class conManager:
         group.users.append(bites[4].lower())
         group.users.sort()
       args = [bites[1], group, user, bites[3]]
+
+    elif cmd == "ratelimited": group.limit = int(bites[1])
+    elif cmd == "ratelimitset": group.limit = int(bites[1])
+    elif cmd == "getratelimit":
+      group.limit = int(bites[1])
+      group.limited = int(bites[2])
 
     elif cmd == 'b':
       try:

@@ -113,7 +113,7 @@ class Group:
     self.chSocket.setblocking(True)
     self.chSocket.connect(("s"+str(self.snum)+".chatango.com", 443))
     threading.Timer(90, self.manager.pingTimer, (self,)).start()
-    self.wbuf += bytes("bauth:"+self.name+":"+self.uid+":"+self.user+":"+self.password+"\x00", "latin-1")
+    self.wbuf += bytes("bauth:"+self.name+":"+self.uid+":"+self.user+":"+self.password+"\x00", "utf-8")
 
   def disconnect(self):
     self.chSocket.close()
@@ -123,7 +123,7 @@ class Group:
     self.blist = list()
     self.sendCmd("blocklist", "block", "", "next", "500")
 
-  def sendCmd(self, *args): self.wbuf += bytes(':'.join(args)+"\r\n\x00", "latin-1")
+  def sendCmd(self, *args): self.wbuf += bytes(':'.join(args)+"\r\n\x00", "utf-8")
   def getLastPost(self, match, data = "user"):
     try: post = [x for x in list(self.pArray.values()) if getattr(x, data) == match][-1]
     except IndexError: post = None
@@ -242,9 +242,9 @@ class conManager:
     self.chSocket.connect(("c1.chatango.com", 5222))
     self.pmAuth = Generate.auth(self)
     threading.Timer(90, self.pingTimer, (self,)).start()
-    self.wbuf += bytes("tlogin:"+self.pmAuth+":2:"+self.uid+"\x00", "latin-1")
+    self.wbuf += bytes("tlogin:"+self.pmAuth+":2:"+self.uid+"\x00", "utf-8")
 
-  def sendCmd(self, *args): self.wbuf += bytes(':'.join(args)+"\r\n\x00", "latin-1")
+  def sendCmd(self, *args): self.wbuf += bytes(':'.join(args)+"\r\n\x00", "utf-8")
 
   def addGroup(self, group):
     if not self.getGroup(group) in self.cArray:

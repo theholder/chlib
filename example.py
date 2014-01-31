@@ -28,7 +28,7 @@ class Bot(chlib.conManager):
     def recvPost(self, user, group, auth, post):
       print(user+": "+post.post)
 
-    def recvmsg(self, group, user, pm):
+    def recvmsg(self, user, pm):
       print("PM: "+user+": "+pm)
       self.sendPM(user, pm) # echo
 

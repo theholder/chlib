@@ -20,8 +20,8 @@ recvUserLeave(group, user) = recvparticipant(bit, group, user, uid) NOTE: bit = 
 recvUserJoin(group, user) = recvparticipant(bit, group, user, uid) NOTE: bit = 1
 recvCommand(user, group, auth, post, command, command arguments) NOTE: unchanged
 recvPost(user, group, auth, post) NOTE: unchanged
-recvModErase(group, user) = recvmods(left, group, mod) NOTE: left = true
-recvModAdd(group, user) = recvmods(left, group, mod) NOTE: left = false
+recvModErase(group, user) = recvmods(added, group, mod) NOTE: added = false
+recvModAdd(group, user) = recvmods(added, group, mod) NOTE: added = true
 recvPostDelete(group, post) = recvdelete(group, post)
 recvBan(group, user, mod) = recvblocked(group, user, mod)
 recvUnban(group, user, mod) = recvunblocked(group, user mod)

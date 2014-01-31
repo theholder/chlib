@@ -370,11 +370,11 @@ class conManager:
       if len(mlist) < len(group.mods):
         mod = [m for m in group.mods if m not in mlist][0]
         group.mods.remove(mod)
-        args = [True, group, mod]
+        args = [False, group, mod]
       if len(mlist) > len(group.mods):
         mod = [m for m in mlist if m not in group.mods][0]
         group.mods.append(mod)
-        args = [False, group, mod]
+        args = [True, group, mod]
 
     elif cmd == "deleteall":
       for pid in bites[1:]:

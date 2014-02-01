@@ -29,7 +29,7 @@ recvLogout(group) = recvlogoutok(group)
 recvLogin(group) = recvpwdok(group)
 recvGroupClear(group) = recvclearall(group)
 recvFlWarning(group) = recvshow_fw(group)
-recvGroupBan(group) = recvshow_tb(group)
+recvGroupBan(group) = recvshow_tb(group, mins, secs)
 recvGroupBanUpdate(minutes, seconds) = recvtb(group, mins, secs)
 
 PM's:

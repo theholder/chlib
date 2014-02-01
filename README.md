@@ -35,6 +35,6 @@ recvGroupBanUpdate(minutes, seconds) = recvtb(group, mins, secs)
 PM's:
 
 recvPMInit(group) = recvOK(group)
-recvOfflinePM(user, pm) = recvmsgoff(group, user, pm)
-recvPm(user, pm) = recvmsg(group, user, pm)
+recvOfflinePM(user, pm) = recvmsgoff(user, pm)
+recvPm(user, pm) = recvmsg(user, pm)
 recvPMKick() = recvkickingoff(group)

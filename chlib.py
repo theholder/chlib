@@ -413,6 +413,10 @@ class conManager:
     elif cmd == "tb":
       mins, secs = divmod(int(bites[1]), 60)
       args = [group, mins, secs]
+      
+    elif cmd == "show_tb":
+      mins, secs = divmod(int(bites[1]), 60)
+      args = [group, mins, secs]
 
     elif cmd == "OK": self.sendCmd("wl")
     elif cmd == "wl":

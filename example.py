@@ -33,6 +33,10 @@ class Bot(chlib.conManager):
       self.disconnect()
       self.connect()
 
+    def recvtoofast(self, group):
+      self.disconnect()
+      self.connect()
+
 if __name__ == "__main__": #no easy starting this time ;D
     bot = Bot(user = "user", password = "password", pm = True)
     bot.main()

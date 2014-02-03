@@ -230,7 +230,7 @@ class conManager:
     self.fColor = "000"
     self.nColor = "000"
     self.uid = str(int(random.randrange(1000000000000000, 10000000000000000)))
-    self.cmdPrefix = None
+    self.prefix = None
     if self.pm: self.connect()
 
   def fileno(self): return self.chSocket.fileno()
@@ -365,7 +365,7 @@ class conManager:
         setattr(post, "pid", bites[2])
         if post.post: #not blank post
           self.recvPost(post.user, group, group.getAuth(post.user), post)
-          if post.post[0] == self.cmdPrefix: self.recvCommand(post.user, group, group.getAuth(post.user), post, post.post.split()[0][1:].lower(), " ".join(post.post.split()[1:]))
+          if post.post[0] == self.prefix: self.recvCommand(post.user, group, group.getAuth(post.user), post, post.post.split()[0][1:].lower(), " ".join(post.post.split()[1:]))
       except KeyError: pass
 
     elif cmd == "n": group.unum = bites[1]

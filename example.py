@@ -5,7 +5,7 @@ class Bot(chlib.conManager):
     def run(self):
       groups = ["example", "example2"] #list your group names instead
       for group in groups: self.addGroup(group)
-      self.cmdPrefix = "!" #optional, just won't call any commands if not specified.
+      self.prefix = "!" #optional, just won't call any commands if not specified.
 
     def recvdenied(self, group):
       print("Failed to connect to "+group.name)

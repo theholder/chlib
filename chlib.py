@@ -216,7 +216,6 @@ class conManager:
     self.pm = pm
     self.name = "pm"
     self.connected = False
-    self.pmConnected = False
     self.cArray = list()
     self.groups = list()
     self.fl = list()
@@ -232,11 +231,11 @@ class conManager:
     self.nColor = "000"
     self.uid = str(int(random.randrange(1000000000000000, 10000000000000000)))
     self.cmdPrefix = None
-    if self.pm: self.pmConnect()
+    if self.pm: self.connect()
 
   def fileno(self): return self.chSocket.fileno()
 
-  def pmConnect(self):
+  def connect(self):
     self.chSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     self.chSocket.setblocking(True)
     self.chSocket.connect(("c1.chatango.com", 5222))
@@ -244,7 +243,11 @@ class conManager:
     threading.Timer(90, self.pingTimer, (self,)).start()
     self.wbuf += bytes("tlogin:"+self.pmAuth+":2:"+self.uid+"\x00", "utf-8")
     self.cArray.append(self)
-    self.pmConnected = True
+    self.connected = True
+
+  def disconnect(self):
+    self.chSocket.close()
+    if self in self.cArray: self.cArray.remove(self)
 
   def sendCmd(self, *args): self.wbuf += bytes(':'.join(args)+"\r\n\x00", "utf-8")
 
@@ -444,7 +447,7 @@ class conManager:
 
   def main(self):
     self.run()
-    while self.connected or self.pmConnected:
+    while self.connected:
       rSocks, wSocks, eSocks = select.select(self.cArray, [x for x in self.cArray if x.wbuf], self.cArray)
       for wSock in wSocks:
         try: wSock.chSocket.send(wSock.wbuf)

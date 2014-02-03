@@ -126,7 +126,7 @@ class Group:
   def sendCmd(self, *args): self.wbuf += bytes(':'.join(args)+"\r\n\x00", "utf-8")
   def getLastPost(self, match, data = "user"):
     try: post = [x for x in list(self.pArray.values()) if getattr(x, data) == match][-1]
-    except IndexError: post = None
+    except: post = None
     return post
 
   def sendPost(self, post, html = True):

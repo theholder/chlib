@@ -243,6 +243,8 @@ class conManager:
     self.pmAuth = Generate.auth(self)
     threading.Timer(90, self.pingTimer, (self,)).start()
     self.wbuf += bytes("tlogin:"+self.pmAuth+":2:"+self.uid+"\x00", "utf-8")
+    self.cArray.append(self)
+    self.pmConnected = True
 
   def sendCmd(self, *args): self.wbuf += bytes(':'.join(args)+"\r\n\x00", "utf-8")
 

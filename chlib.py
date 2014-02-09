@@ -174,7 +174,7 @@ class Group:
     if post: unid = post.unid
     if unid: self.sendCmd("delallmsg", unid, "")
 
-  def bUser(self, user):
+  def ban(self, user):
     unid = None
     ip = None
     try:
@@ -186,11 +186,11 @@ class Group:
       else: self.sendCmd("block", unid, ip, user)
     self.getBanList()
 
-  def flUser(self, user):
+  def flag(self, user):
     pid = self.getLastPost(user).pid
     self.sendCmd("g_flag", pid)
 
-  def ubUser(self, user):
+  def unban(self, user):
     banned = [x for x in self.blist if x.user == user]
     if banned:
       self.sendCmd("removeblock", banned[0].unid, banned[0].ip, banned[0].user)
@@ -208,7 +208,7 @@ class Group:
 #Handles: New Connections and Connection data
 ################################
 
-class conManager:
+class ConnectionManager:
 
   def __init__(self, user, password, pm):
     self.user = user.lower()

@@ -1,6 +1,6 @@
 import chlib
 
-class Bot(chlib.conManager):
+class Bot(chlib.ConnectionManager):
 
     def run(self):
       groups = ["example", "example2"] #list your group names instead

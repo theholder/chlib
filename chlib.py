@@ -240,7 +240,9 @@ class ConnectionManager:
     self.chSocket.setblocking(True)
     self.chSocket.connect(("c1.chatango.com", 5222))
     self.pmAuth = Generate.auth(self)
-    threading.Timer(90, self.pingTimer, (self,)).start()
+    t = threading.Timer(90, self.pingTimer, (self,))
+    t.setDaemon(True)
+    t.start()
     self.wbuf += bytes("tlogin:"+self.pmAuth+":2:"+self.uid+"\x00", "utf-8")
     self.cArray.append(self)
     self.connected = True

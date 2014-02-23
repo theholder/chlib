@@ -157,9 +157,9 @@ class Group:
   def setFontFace(self, fFace): self.fFace = fFace
 
   def getAuth(self, user):
-    if user == self.owner: return "2"
-    if user in self.mods: return "1"
-    else: return "0"
+    if user == self.owner: return 2
+    if user in self.mods: return 1
+    else: return 0
 
   def getBan(self, user):
     banned = [x for x in self.blist if x.user == user]
